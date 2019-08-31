@@ -16,6 +16,7 @@
 		7D479B6D2316C1DB00DB9E0A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7D479B6B2316C1DB00DB9E0A /* LaunchScreen.storyboard */; };
 		7D479B782316C3BA00DB9E0A /* GlobalVariables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D479B772316C3BA00DB9E0A /* GlobalVariables.swift */; };
 		7D479B7B2316C48C00DB9E0A /* todo.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 7D479B7A2316C48C00DB9E0A /* todo.rtf */; };
+		7D7DD9EC23196B2B00342BE1 /* FlickrSearchResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7DD9EB23196B2B00342BE1 /* FlickrSearchResponse.swift */; };
 		7D9909892318E20E00ACEF05 /* VirtualTouristAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9909882318E20E00ACEF05 /* VirtualTouristAPI.swift */; };
 /* End PBXBuildFile section */
 
@@ -31,6 +32,7 @@
 		7D479B6E2316C1DB00DB9E0A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7D479B772316C3BA00DB9E0A /* GlobalVariables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalVariables.swift; sourceTree = "<group>"; };
 		7D479B7A2316C48C00DB9E0A /* todo.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = todo.rtf; sourceTree = "<group>"; };
+		7D7DD9EB23196B2B00342BE1 /* FlickrSearchResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrSearchResponse.swift; sourceTree = "<group>"; };
 		7D9909882318E20E00ACEF05 /* VirtualTouristAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualTouristAPI.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -58,6 +60,7 @@
 			isa = PBXGroup;
 			children = (
 				7D9909882318E20E00ACEF05 /* VirtualTouristAPI.swift */,
+				7D7DD9EB23196B2B00342BE1 /* FlickrSearchResponse.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -199,6 +202,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D7DD9EC23196B2B00342BE1 /* FlickrSearchResponse.swift in Sources */,
 				7D3A646D231815BA0009531E /* DataController.swift in Sources */,
 				7D9909892318E20E00ACEF05 /* VirtualTouristAPI.swift in Sources */,
 				7D3A646A2318142B0009531E /* VirtualTourist.xcdatamodeld in Sources */,

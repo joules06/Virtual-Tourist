@@ -21,20 +21,36 @@
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="3du-qn-m3K">
                                 <rect key="frame" x="0.0" y="88" width="414" height="774"/>
                             </mapView>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap to delete" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zio-FH-Zwg">
+                                <rect key="frame" x="0.0" y="841" width="414" height="21"/>
+                                <color key="backgroundColor" red="1" green="0.27058823529999998" blue="0.2470588235" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="zio-FH-Zwg" secondAttribute="trailing" id="2EI-0i-NtF"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="3du-qn-m3K" secondAttribute="bottom" id="3EN-6r-Xdw"/>
+                            <constraint firstItem="zio-FH-Zwg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="3ht-bl-rki"/>
                             <constraint firstItem="3du-qn-m3K" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="YQE-a1-0Ok"/>
                             <constraint firstItem="3du-qn-m3K" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="lw9-eU-aF3"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="zio-FH-Zwg" secondAttribute="bottom" id="wIX-sE-HMZ"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="3du-qn-m3K" secondAttribute="trailing" id="zIY-3y-aX8"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <navigationItem key="navigationItem" id="yDl-Pq-XqH">
-                        <barButtonItem key="rightBarButtonItem" systemItem="edit" id="RpC-2F-98r"/>
+                        <barButtonItem key="rightBarButtonItem" systemItem="edit" id="RpC-2F-98r">
+                            <connections>
+                                <action selector="editTapped:" destination="BYZ-38-t0r" id="87W-LC-WLN"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="buttonForEditAndDone" destination="RpC-2F-98r" id="Uos-Rn-4Yr"/>
+                        <outlet property="labelForIndication" destination="zio-FH-Zwg" id="T6W-Pc-OdZ"/>
                         <outlet property="mapView" destination="3du-qn-m3K" id="Q7f-xR-fQM"/>
                     </connections>
                 </viewController>
