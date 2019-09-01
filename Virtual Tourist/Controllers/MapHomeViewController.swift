@@ -27,6 +27,7 @@ class MapHomeViewController: UIViewController {
         mapView.addGestureRecognizer(longPress)
         
         populateMap()
+        
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -54,6 +55,15 @@ class MapHomeViewController: UIViewController {
         addPin(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude, uuid: uuid.uuidString)
         
         print("punto: \(point)")
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToMapDetails" {
+            let destinationVC = segue.destination as! MapDetailsViewController
+            
+            destinationVC.annotation = sender as?  MKAnnotation
+            destinationVC.dataController = dataController
+        }
     }
     
     //MARK: - Core Data functions
@@ -114,6 +124,8 @@ class MapHomeViewController: UIViewController {
 }
 
 extension MapHomeViewController: MKMapViewDelegate {
+    
+    
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let id = GlobalVariables.reusableIDForMap
         
@@ -137,8 +149,8 @@ extension MapHomeViewController: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        if editEnable {
-            if let annotation = view.annotation {
+        if let annotation = view.annotation {
+            if editEnable {
                 guard let title = annotation.title else {
                     return
                 }
@@ -155,9 +167,9 @@ extension MapHomeViewController: MKMapViewDelegate {
                 }catch {
                     print("cant delete \(error.localizedDescription)")
                 }
+            } else {
+                performSegue(withIdentifier: "goToMapDetails", sender: annotation)
             }
-        } else {
-            print("nothing to do")
         }
         
     }

@@ -13,7 +13,7 @@
         <relationship name="photos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Photos" inverseName="pinLocations" inverseEntity="Photos" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Photos" positionX="-388.33203125" positionY="-14.62109375" width="128" height="88"/>
+        <element name="Photos" positionX="-388.33203125" positionY="-14.62109375" width="128" height="90"/>
         <element name="Pin" positionX="-796.43359375" positionY="-13.3125" width="128" height="120"/>
     </elements>
 </model>
