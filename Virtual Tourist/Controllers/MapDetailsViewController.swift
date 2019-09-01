@@ -5,6 +5,7 @@
 //  Created by Julio Rico on 8/31/19.
 //  Copyright © 2019 Julio Rico. All rights reserved.
 //
+import CoreData
 import MapKit
 import SDWebImage
 import UIKit
@@ -14,8 +15,12 @@ class MapDetailsViewController: UIViewController {
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     
+
     var dataController: DataController!
+    var pinLocation: Pin!
     var annotation:  MKAnnotation?
+    var photos: [Photos]!
+    
     var images = ["icon_addpin", "icon_back-arrow"]
     
     override func viewDidLoad() {
@@ -54,14 +59,20 @@ class MapDetailsViewController: UIViewController {
         images.removeAll()
         
         for photo in response.photos.photo {
-            //imageForPoster.sd_setImage(with: URL(string: safeURLForCover), placeholderImage: UIImage(named: placeHolderHorizontal))
-            print("url value \(VirtualTouristAPI.EndPoint.imageURL(photo.farm, photo.server, photo.id, photo.secret).stringValue)")
             images.append(VirtualTouristAPI.EndPoint.imageURL(photo.farm, photo.server, photo.id, photo.secret).stringValue)
         }
+        
         DispatchQueue.main.async {
             self.collectionView.reloadData()
         }
+    }
+    
+    //MARK: - Core data functions
+    func addPhoto() {
+        let photo = Photos(context: dataController.viewContext)
+        photo.creationDate = Date()
         
+        try? dataController.viewContext.save()
     }
 
 }
@@ -87,10 +98,17 @@ extension MapDetailsViewController: MKMapViewDelegate {
 }
 
 extension MapDetailsViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+        
+        print("url selected: \(String(describing: cell.contentView.sd_imageURL))")
+//        performSegue(withIdentifier: "goToAnimeDetails", sender: cell)
+    }
    
 }
 
 extension MapDetailsViewController: UICollectionViewDataSource {
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return images.count
     }
@@ -100,11 +118,16 @@ extension MapDetailsViewController: UICollectionViewDataSource {
         let imageName = images[indexPath.row]
         
         cell.flickrImage.image = UIImage(named: imageName)
+        
         cell.flickrImage.sd_setImage(with: URL(string: imageName), placeholderImage: UIImage(named: "icon_addpin"))
         
         return cell
         
     }
+    
+}
+
+extension MapDetailsViewController: NSFetchedResultsControllerDelegate {
     
 }
 

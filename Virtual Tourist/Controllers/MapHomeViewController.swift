@@ -17,7 +17,7 @@ class MapHomeViewController: UIViewController {
     var selectedPin:MKPlacemark? = nil
     var dataController: DataController!
     var editEnable = false
-    
+    var locationSaved = Pin()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,6 +42,7 @@ class MapHomeViewController: UIViewController {
         // Converts point where user did a long press to map coordinates
         let point = sender.location(in: mapView)
         let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
+        var canSave = false
         
         // Create a basic point annotation and add it to the map
         let annotation = MKPointAnnotation()
@@ -52,7 +53,17 @@ class MapHomeViewController: UIViewController {
         
         mapView.addAnnotation(annotation)
         
-        addPin(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude, uuid: uuid.uuidString)
+        if let pines = try? fetchPinesWith(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude) {
+            if pines.count == 0 {
+                canSave = true
+            }
+        }else {
+            canSave = true
+        }
+        
+        if canSave {
+            addPin(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude, uuid: uuid.uuidString)
+        }
         
         print("punto: \(point)")
     }
@@ -67,6 +78,20 @@ class MapHomeViewController: UIViewController {
     }
     
     //MARK: - Core Data functions
+    fileprivate func addPin(latitude: Double, longitude: Double, uuid: String) {
+        let pin = Pin(context: dataController.viewContext)
+        pin.latitude = latitude
+        pin.longitude = longitude
+        pin.creationDate = Date()
+        pin.uuid = uuid
+        try? dataController.viewContext.save()
+        print("location saved")
+        
+        locationSaved = pin
+        
+        //dowload images and save it
+        VirtualTouristAPI.requestImagesFromLocatoin(lat: pin.latitude, lon: pin.longitude, completionHandler: handleImagesFromLocation(response:error:))
+    }
     
     fileprivate func fetchPines() throws -> [Pin] {
         let users = try self.dataController.viewContext.fetch(Pin.fetchRequest() as NSFetchRequest<Pin>)
@@ -85,6 +110,15 @@ class MapHomeViewController: UIViewController {
         return  try self.dataController.viewContext.fetch(request)
     }
     
+    fileprivate func fetchPinesWith(latitude: Double, longitude: Double) throws -> [Pin] {
+        let request = NSFetchRequest<Pin>(entityName: "Pin")
+        request.predicate = NSPredicate(format: "latitude == %lf AND longitude == %lf", latitude, longitude)
+        
+        return  try self.dataController.viewContext.fetch(request)
+    }
+    
+    //MARK: - Functions to populate map
+    
     fileprivate func populateMap() {
         if let pines = try? fetchPines() {
             for element in pines {
@@ -98,15 +132,20 @@ class MapHomeViewController: UIViewController {
         }
     }
     
-    fileprivate func addPin(latitude: Double, longitude: Double, uuid: String) {
-        let pin = Pin(context: dataController.viewContext)
-        pin.latitude = latitude
-        pin.longitude = longitude
-        pin.creationDate = Date()
-        pin.uuid = uuid
-        try? dataController.viewContext.save()
-        print("location saved")
-        
+    //MARK: - API
+    func handleImagesFromLocation(response: FlickrSearchResponse?, error: Error?) {
+        guard let response = response else {
+            return
+        }
+
+        for photo in response.photos.photo {
+            let photoToSave = Photos(context: dataController.viewContext)
+            photoToSave.pinLocations = locationSaved
+            photoToSave.creationDate = Date()
+            photoToSave.url = VirtualTouristAPI.EndPoint.imageURL(photo.farm, photo.server, photo.id, photo.secret).stringValue
+            
+            try? dataController.viewContext.save()
+        }
         
     }
     

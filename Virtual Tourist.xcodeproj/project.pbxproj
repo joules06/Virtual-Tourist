@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -62,7 +62,6 @@
 				2B9F70A358DBEA2AD6E620AC /* Pods-Virtual Tourist.debug.xcconfig */,
 				D66E2AD04F9FE8C47F1AF628 /* Pods-Virtual Tourist.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};

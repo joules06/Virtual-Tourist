@@ -10,7 +10,7 @@ import Foundation
 import SVProgressHUD
 
 class VirtualTouristAPI {
-    static let apiKey = "603a179ca8ccbac82aef082d4049f128"
+    static let apiKey = "babdff117ad276dcc8c9003ddc9bfb6c"
     
     static let baseURLForSearch = "https://www.flickr.com/services/rest/?method=flickr.photos.search"
     
@@ -25,7 +25,7 @@ class VirtualTouristAPI {
         var stringValue: String {
             switch self {
             case .searchImagesForLocation(let lat, let lon):
-                return "\(baseURLForSearch)&api_key=\(apiKey)&lat=\(lat)&lon=\(lon)&format=json&nojsoncallback=1"
+                return "\(baseURLForSearch)&api_key=\(apiKey)&lat=\(lat)&lon=\(lon)&format=json&nojsoncallback=1&per_page=20"
                 
             case .imageURL(let farmId, let serverId, let id, let secret):
                 return "https://farm\(farmId).staticflickr.com/\(serverId)/\(id)_\(secret).jpg"
