@@ -22,8 +22,11 @@
                                 <rect key="frame" x="0.0" y="88" width="414" height="774"/>
                             </mapView>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap to delete" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zio-FH-Zwg">
-                                <rect key="frame" x="0.0" y="841" width="414" height="21"/>
+                                <rect key="frame" x="0.0" y="827" width="414" height="35"/>
                                 <color key="backgroundColor" red="1" green="0.27058823529999998" blue="0.2470588235" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="35" id="Nke-wL-v9a"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
@@ -114,7 +117,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="w3C-yK-0fl"/>
                                 </constraints>
-                                <state key="normal" title="Button"/>
+                                <state key="normal" title="New Collection"/>
                                 <connections>
                                     <action selector="buttonForActionTapped:" destination="FbK-Um-h30" eventType="touchUpInside" id="c3z-xa-ks5"/>
                                 </connections>

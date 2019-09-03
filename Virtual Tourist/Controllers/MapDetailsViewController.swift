@@ -18,39 +18,18 @@ class MapDetailsViewController: UIViewController {
     var fetchedResultsController:NSFetchedResultsController<Photos>!
 
     var dataController: DataController!
-    var pinLocation: Pin! {
-        didSet {
-            print("did set locaiton: \(self.pinLocation.latitude) - \(self.pinLocation.longitude)")
-        }
-        
-    }
+    var pinLocation: Pin!
     var annotation:  MKAnnotation?
     
     var selectedImages: [IndexPath]!
-    
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupFetchedResultsController()
         
-        mapView.delegate = self
-        
-        mapView.isZoomEnabled = false
-        mapView.isPitchEnabled = false
-        mapView.isRotateEnabled = false
-        mapView.isScrollEnabled = false
-        
-        guard let annotation = annotation else {
-            return
-        }
-        
-        mapView.addAnnotation(annotation)
-        let span = MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
-        let region = MKCoordinateRegion(center: annotation.coordinate, span: span)
-        mapView.setRegion(region, animated: true)
+        setUpMap()
 
-        
         collectionView.delegate = self
         collectionView.dataSource = self
         
@@ -79,20 +58,44 @@ class MapDetailsViewController: UIViewController {
         if selectedImages.count > 0 {
             
             for elemnt in selectedImages {
-                deleteImage(at: elemnt)
+                deletePhoto(at: elemnt)
             }
-            
-            
+
             selectedImages.removeAll()
             buttonForAction.setTitle("New Collection", for: .normal)
+        } else {
+            //remove all images and donwload new ones
+            if let allPhotos = try? fetchPhotos() {
+                for photo in allPhotos {
+                    try? delete(photo: photo)
+                }
+                
+                VirtualTouristAPI.requestImagesFromLocation(lat: pinLocation.latitude, lon: pinLocation.longitude, completionHandler: handleImagesFromLocation(response:error:))
+                
+
+                selectedImages.removeAll()
+                buttonForAction.setTitle("New Collection", for: .normal)
+                
+            }
         }
     }
     
-    func handleImagesFromLocation(response: FlickrSearchResponse?, error: Error?) {
+    fileprivate func setUpMap() {
+        mapView.delegate = self
+        mapView.isZoomEnabled = false
+        mapView.isPitchEnabled = false
+        mapView.isRotateEnabled = false
+        mapView.isScrollEnabled = false
         
-        DispatchQueue.main.async {
-            self.collectionView.reloadData()
+        guard let annotation = annotation else {
+            return
         }
+        
+        mapView.addAnnotation(annotation)
+        let span = MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
+        let region = MKCoordinateRegion(center: annotation.coordinate, span: span)
+        mapView.setRegion(region, animated: true)
+        
     }
     
     //MARK: - Core data functions
@@ -106,26 +109,77 @@ class MapDetailsViewController: UIViewController {
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
         
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "\(String(describing: pinLocation))-notes")
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "\(pinLocation)-pinLocations")
         fetchedResultsController.delegate = self
         
         do {
             try fetchedResultsController.performFetch()
-           
+            
         } catch {
             fatalError("The fetch could not be performed: \(error.localizedDescription)")
         }
+        
     }
     
-    func deleteImage(at indexPath: IndexPath) {
+    fileprivate func fetchPhotos() throws -> [Photos] {
+        let request = NSFetchRequest<Photos>(entityName: "Photos")
+        request.predicate = NSPredicate(format: "pinLocations == %@", pinLocation)
+        
+        return  try self.dataController.viewContext.fetch(request)
+    }
+    
+    func deletePhoto(at indexPath: IndexPath) {
         let photoToDelete = fetchedResultsController.object(at: indexPath)
         dataController.viewContext.delete(photoToDelete)
+        
         try? dataController.viewContext.save()
         
         DispatchQueue.main.async {
             self.setupFetchedResultsController()
             self.collectionView.reloadData()
         }
+    }
+    
+    func delete(photo: Photos) throws {
+        self.dataController.viewContext.delete(photo)
+        try self.dataController.viewContext.save()
+    }
+    
+    func addImage(url: String) {
+        let photo = Photos(context: dataController.viewContext)
+        photo.creationDate = Date()
+        photo.pinLocations = pinLocation
+        photo.url = url
+        do {
+            try dataController.viewContext.save()
+        }catch {
+            fatalError("couldn save image")
+        }
+        
+        
+        
+    }
+    
+    //MARK: - API
+    func handleImagesFromLocation(response: FlickrSearchResponse?, error: Error?) {
+        DispatchQueue.main.async {
+            guard let response = response else {
+                return
+            }
+            for photo in response.photos.photo {
+                if !photo.server.isEmpty && !photo.id.isEmpty && !photo.secret.isEmpty {
+                    let url  = VirtualTouristAPI.EndPoint.imageURL(photo.farm, photo.server, photo.id, photo.secret).stringValue
+                    self.addImage(url: url)
+                }
+            }
+            //retreive al images
+            self.fetchedResultsController = nil
+            self.setupFetchedResultsController()
+            
+            //reload images on collection view
+            self.collectionView.reloadData()
+        }
+
     }
 
 }
@@ -183,7 +237,7 @@ extension MapDetailsViewController: UICollectionViewDelegate {
 
 extension MapDetailsViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-
+        print ("objects \(fetchedResultsController.sections?[0].numberOfObjects ?? 0)")
         return fetchedResultsController.sections?[0].numberOfObjects ?? 0
     }
     

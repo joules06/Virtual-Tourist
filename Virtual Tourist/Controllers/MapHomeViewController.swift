@@ -19,6 +19,7 @@ class MapHomeViewController: UIViewController {
     var editEnable = false
     var locationSaved: Pin!
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
@@ -28,11 +29,18 @@ class MapHomeViewController: UIViewController {
         
         populateMap()
         
+        usersLastMapLocation()
+        
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-
+        print("viewDidDisappear")
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+         print("viewWillDisappear")
     }
     
     
@@ -77,12 +85,8 @@ class MapHomeViewController: UIViewController {
 
                 let first = locations.first {
                 locationSaved = first
-                
-                
             }
-            
-          
-            
+
             destinationVC.pinLocation = locationSaved
             print("origin location: \(locationSaved.objectID) - lat: \(locationSaved.latitude) - long: \(locationSaved.longitude)")
             
@@ -153,6 +157,22 @@ class MapHomeViewController: UIViewController {
         }
     }
     
+    fileprivate func usersLastMapLocation() {
+        let defaults = UserDefaults.standard.dictionary(forKey: "location") as! [String:Double]
+        if  let lat = defaults["lat"],
+            let long = defaults["long"],
+            let latDelta = defaults["latDelta"],
+            let longDelta = defaults["longDelta"]
+            
+        {
+            let center: CLLocationCoordinate2D = CLLocationCoordinate2DMake(lat, long)
+            let span: MKCoordinateSpan = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: longDelta)
+            let region: MKCoordinateRegion = MKCoordinateRegion(center: center, span: span)
+            mapView.setRegion(region, animated: true)
+        }
+    }
+    
+    
     //MARK: - API
     func handleImagesFromLocation(response: FlickrSearchResponse?, error: Error?) {
         DispatchQueue.main.async {
@@ -176,7 +196,6 @@ class MapHomeViewController: UIViewController {
     }
     
     //MARK: - Buttons and actions
-
     @IBAction func editTapped(_ sender: UIBarButtonItem) {
         editEnable.toggle()
         
@@ -235,8 +254,17 @@ extension MapHomeViewController: MKMapViewDelegate {
             }
             
         }
-        
     }
+    
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        let defaults = UserDefaults.standard
+        let locationData = ["lat":mapView.centerCoordinate.latitude
+            , "long":mapView.centerCoordinate.longitude
+            , "latDelta":mapView.region.span.latitudeDelta
+            , "longDelta":mapView.region.span.longitudeDelta]
+        defaults.set(locationData, forKey: "location")
+    }
+
 }
 
 extension MapHomeViewController: NSFetchedResultsControllerDelegate {
