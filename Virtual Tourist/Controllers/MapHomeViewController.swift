@@ -17,7 +17,7 @@ class MapHomeViewController: UIViewController {
     var selectedPin:MKPlacemark? = nil
     var dataController: DataController!
     var editEnable = false
-    var locationSaved = Pin()
+    var locationSaved: Pin!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -71,8 +71,22 @@ class MapHomeViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToMapDetails" {
             let destinationVC = segue.destination as! MapDetailsViewController
+            let annotation = sender as?  MKAnnotation
+
+            if let locations = try? fetchPinesWith(latitude: annotation?.coordinate.latitude ?? 0, longitude: annotation?.coordinate.longitude ?? 0),
+
+                let first = locations.first {
+                locationSaved = first
+                
+                
+            }
             
-            destinationVC.annotation = sender as?  MKAnnotation
+          
+            
+            destinationVC.pinLocation = locationSaved
+            print("origin location: \(locationSaved.objectID) - lat: \(locationSaved.latitude) - long: \(locationSaved.longitude)")
+            
+            destinationVC.annotation = annotation
             destinationVC.dataController = dataController
         }
     }
@@ -85,12 +99,12 @@ class MapHomeViewController: UIViewController {
         pin.creationDate = Date()
         pin.uuid = uuid
         try? dataController.viewContext.save()
-        print("location saved")
         
         locationSaved = pin
         
         //dowload images and save it
-        VirtualTouristAPI.requestImagesFromLocatoin(lat: pin.latitude, lon: pin.longitude, completionHandler: handleImagesFromLocation(response:error:))
+        VirtualTouristAPI.requestImagesFromLocation(lat: pin.latitude, lon: pin.longitude, completionHandler: handleImagesFromLocation(response:error:))
+        
     }
     
     fileprivate func fetchPines() throws -> [Pin] {
@@ -117,6 +131,13 @@ class MapHomeViewController: UIViewController {
         return  try self.dataController.viewContext.fetch(request)
     }
     
+    fileprivate func fetchImages(pin: Pin) throws -> [Photos] {
+        let request = NSFetchRequest<Photos>(entityName: "Photos")
+        request.predicate = NSPredicate(format: "pinLocations == %@", pin)
+        
+        return  try self.dataController.viewContext.fetch(request)
+    }
+    
     //MARK: - Functions to populate map
     
     fileprivate func populateMap() {
@@ -134,19 +155,24 @@ class MapHomeViewController: UIViewController {
     
     //MARK: - API
     func handleImagesFromLocation(response: FlickrSearchResponse?, error: Error?) {
-        guard let response = response else {
-            return
+        DispatchQueue.main.async {
+            guard let response = response else {
+                return
+            }
+            for photo in response.photos.photo {
+                if !photo.server.isEmpty && !photo.id.isEmpty && !photo.secret.isEmpty {
+                    let photoToSave = Photos(context: self.dataController.viewContext)
+                    photoToSave.pinLocations = self.locationSaved
+                    
+                    photoToSave.creationDate = Date()
+                    photoToSave.url = VirtualTouristAPI.EndPoint.imageURL(photo.farm, photo.server, photo.id, photo.secret).stringValue
+                    
+                    try? self.dataController.viewContext.save()
+                }
+            }
         }
 
-        for photo in response.photos.photo {
-            let photoToSave = Photos(context: dataController.viewContext)
-            photoToSave.pinLocations = locationSaved
-            photoToSave.creationDate = Date()
-            photoToSave.url = VirtualTouristAPI.EndPoint.imageURL(photo.farm, photo.server, photo.id, photo.secret).stringValue
-            
-            try? dataController.viewContext.save()
-        }
-        
+        print("urls saved")
     }
     
     //MARK: - Buttons and actions
@@ -158,13 +184,10 @@ class MapHomeViewController: UIViewController {
             self.labelForIndication.isHidden = !self.editEnable
             
         }
-        
     }
 }
 
 extension MapHomeViewController: MKMapViewDelegate {
-    
-    
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let id = GlobalVariables.reusableIDForMap
         
@@ -189,6 +212,7 @@ extension MapHomeViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         if let annotation = view.annotation {
+           
             if editEnable {
                 guard let title = annotation.title else {
                     return
@@ -209,6 +233,7 @@ extension MapHomeViewController: MKMapViewDelegate {
             } else {
                 performSegue(withIdentifier: "goToMapDetails", sender: annotation)
             }
+            
         }
         
     }

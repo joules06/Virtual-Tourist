@@ -10,4 +10,5 @@ import UIKit
 
 class ImagesCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var flickrImage: UIImageView!
+    
 }

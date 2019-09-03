@@ -35,7 +35,7 @@ class VirtualTouristAPI {
     }
     
     
-    static func requestImagesFromLocatoin(lat: Double, lon: Double, completionHandler: @escaping (FlickrSearchResponse?, Error?) -> Void) {
+    static func requestImagesFromLocation(lat: Double, lon: Double, completionHandler: @escaping (FlickrSearchResponse?, Error?) -> Void) {
         let searchEndPoint = VirtualTouristAPI.EndPoint.searchImagesForLocation(lat, lon).url
         print("url for seach: \(searchEndPoint)")
         SVProgressHUD.show()

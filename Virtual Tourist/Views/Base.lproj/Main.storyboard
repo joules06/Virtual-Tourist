@@ -115,6 +115,9 @@
                                     <constraint firstAttribute="height" constant="40" id="w3C-yK-0fl"/>
                                 </constraints>
                                 <state key="normal" title="Button"/>
+                                <connections>
+                                    <action selector="buttonForActionTapped:" destination="FbK-Um-h30" eventType="touchUpInside" id="c3z-xa-ks5"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -133,6 +136,7 @@
                         <viewLayoutGuide key="safeArea" id="kKQ-uI-OoX"/>
                     </view>
                     <connections>
+                        <outlet property="buttonForAction" destination="izv-pa-mr2" id="Pki-yo-Zv1"/>
                         <outlet property="collectionView" destination="LrZ-wb-Wmr" id="BZs-KJ-HME"/>
                         <outlet property="mapView" destination="ra9-fy-yA4" id="aod-MP-s0l"/>
                     </connections>
