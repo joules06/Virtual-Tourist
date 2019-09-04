@@ -246,7 +246,7 @@ extension MapDetailsViewController: UICollectionViewDataSource {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cellForImages", for: indexPath) as! ImagesCollectionViewCell
         if let imageName = aImage.url {
  
-            cell.flickrImage.sd_setImage(with: URL(string: imageName), placeholderImage: UIImage(named: "icon_addpin"))
+            cell.flickrImage.sd_setImage(with: URL(string: imageName), placeholderImage: UIImage(named: "no-image"))
             cell.flickrImage.alpha = 1.0
             
         }

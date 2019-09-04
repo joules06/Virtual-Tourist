@@ -30,7 +30,9 @@ class MapHomeViewController: UIViewController {
         populateMap()
         
         usersLastMapLocation()
-        
+
+
+        addButtonForNavigation()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -56,7 +58,6 @@ class MapHomeViewController: UIViewController {
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         let uuid = UUID()
-        annotation.title = uuid.uuidString
         
         
         mapView.addAnnotation(annotation)
@@ -74,6 +75,12 @@ class MapHomeViewController: UIViewController {
         }
         
         print("punto: \(point)")
+    }
+    
+    fileprivate func addButtonForNavigation() {
+        let editBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(toggleEditSelector))
+        navigationItem.rightBarButtonItem = editBarButtonItem
+        setEditing(false, animated: true)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -150,7 +157,7 @@ class MapHomeViewController: UIViewController {
                 let coordinate = CLLocationCoordinate2D(latitude: element.latitude, longitude: element.longitude)
                 let annotation = MKPointAnnotation()
                 annotation.coordinate = coordinate
-                annotation.title = element.uuid
+                
                 
                 mapView.addAnnotation(annotation)
             }
@@ -158,7 +165,10 @@ class MapHomeViewController: UIViewController {
     }
     
     fileprivate func usersLastMapLocation() {
-        let defaults = UserDefaults.standard.dictionary(forKey: "location") as! [String:Double]
+        guard let defaults = UserDefaults.standard.dictionary(forKey: "location") as? [String:Double] else {
+            return
+        }
+
         if  let lat = defaults["lat"],
             let long = defaults["long"],
             let latDelta = defaults["latDelta"],
@@ -196,12 +206,28 @@ class MapHomeViewController: UIViewController {
     }
     
     //MARK: - Buttons and actions
-    @IBAction func editTapped(_ sender: UIBarButtonItem) {
+   
+    @objc func toggleEditSelector(_ sender: UIBarButtonItem) {
         editEnable.toggle()
         
-        UIView.animate(withDuration: 1) {
-            self.labelForIndication.isHidden = !self.editEnable
-            
+        self.labelForIndication.isHidden = !self.editEnable
+        
+        guard let systemItem = sender.value(forKey: "systemItem") as? Int else {
+            return
+        }
+        
+        switch systemItem {
+        case UIBarButtonItem.SystemItem.edit.rawValue:
+            let doneBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(toggleEditSelector))
+            doneBarButtonItem.style = .plain
+            navigationItem.rightBarButtonItem = doneBarButtonItem
+            setEditing(true, animated: true)
+        case UIBarButtonItem.SystemItem.done.rawValue:
+            let editBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(toggleEditSelector))
+            navigationItem.rightBarButtonItem = editBarButtonItem
+            setEditing(false, animated: true)
+        default:
+            break
         }
     }
 }
@@ -233,12 +259,15 @@ extension MapHomeViewController: MKMapViewDelegate {
         if let annotation = view.annotation {
            
             if editEnable {
-                guard let title = annotation.title else {
+
+                guard let annotation = mapView.annotations.first else {
                     return
                 }
-                guard let pines = try? fetchPines(with: title ?? "") else {
+                
+                guard let pines = try? fetchPinesWith(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude) else {
                     return
                 }
+                
                 guard let firstPin = pines.first else {
                     return
                 }
