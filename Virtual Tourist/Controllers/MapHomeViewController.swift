@@ -35,16 +35,6 @@ class MapHomeViewController: UIViewController {
         addButtonForNavigation()
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        print("viewDidDisappear")
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-         print("viewWillDisappear")
-    }
-    
     
     @objc func didLongPress(_ sender: UILongPressGestureRecognizer) {
         guard sender.state == .began else { return }
@@ -63,9 +53,7 @@ class MapHomeViewController: UIViewController {
         mapView.addAnnotation(annotation)
         
         if let pines = try? fetchPinesWith(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude) {
-            if pines.count == 0 {
-                canSave = true
-            }
+            canSave = pines.count == 0
         }else {
             canSave = true
         }
@@ -74,7 +62,6 @@ class MapHomeViewController: UIViewController {
             addPin(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude, uuid: uuid.uuidString)
         }
         
-        print("punto: \(point)")
     }
     
     fileprivate func addButtonForNavigation() {
@@ -109,12 +96,13 @@ class MapHomeViewController: UIViewController {
         pin.longitude = longitude
         pin.creationDate = Date()
         pin.uuid = uuid
+        pin.page = 1
         try? dataController.viewContext.save()
         
         locationSaved = pin
         
         //dowload images and save it
-        VirtualTouristAPI.requestImagesFromLocation(lat: pin.latitude, lon: pin.longitude, completionHandler: handleImagesFromLocation(response:error:))
+        VirtualTouristAPI.requestImagesFromLocation(lat: pin.latitude, lon: pin.longitude, page: 1, completionHandler: handleImagesFromLocation(response:error:))
         
     }
     
@@ -185,23 +173,33 @@ class MapHomeViewController: UIViewController {
     
     //MARK: - API
     func handleImagesFromLocation(response: FlickrSearchResponse?, error: Error?) {
-        DispatchQueue.main.async {
-            guard let response = response else {
-                return
-            }
-            for photo in response.photos.photo {
-                if !photo.server.isEmpty && !photo.id.isEmpty && !photo.secret.isEmpty {
-                    let photoToSave = Photos(context: self.dataController.viewContext)
-                    photoToSave.pinLocations = self.locationSaved
-                    
-                    photoToSave.creationDate = Date()
-                    photoToSave.url = VirtualTouristAPI.EndPoint.imageURL(photo.farm, photo.server, photo.id, photo.secret).stringValue
-                    
-                    try? self.dataController.viewContext.save()
-                }
+        guard let response = response else {
+            return
+        }
+        for photo in response.photos.photo {
+            if !photo.server.isEmpty && !photo.id.isEmpty && !photo.secret.isEmpty {
+                VirtualTouristAPI.getData(from: VirtualTouristAPI.EndPoint.imageURL(photo.farm, photo.server, photo.id, photo.secret).url, completion: handleImageDownloaded(data:response:error:))
+                
             }
         }
+        
+    }
+    
+    
+    func handleImageDownloaded(data: Data?, response: URLResponse?, error: Error?) {
+        DispatchQueue.main.async {
+            guard let data = data else {
+                return
+            }
+            let photoToSave = Photos(context: self.dataController.viewContext)
+            photoToSave.pinLocations = self.locationSaved
+            
+            photoToSave.creationDate = Date()
+            photoToSave.image = data
 
+            try? self.dataController.viewContext.save()
+        }
+        
         print("urls saved")
     }
     

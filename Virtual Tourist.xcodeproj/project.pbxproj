@@ -18,6 +18,7 @@
 		7D479B6D2316C1DB00DB9E0A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7D479B6B2316C1DB00DB9E0A /* LaunchScreen.storyboard */; };
 		7D479B782316C3BA00DB9E0A /* GlobalVariables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D479B772316C3BA00DB9E0A /* GlobalVariables.swift */; };
 		7D479B7B2316C48C00DB9E0A /* todo.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 7D479B7A2316C48C00DB9E0A /* todo.rtf */; };
+		7D5AE6112328A5050083E060 /* Readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 7D5AE6102328A5050083E060 /* Readme.md */; };
 		7D7DD9EC23196B2B00342BE1 /* FlickrSearchResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7DD9EB23196B2B00342BE1 /* FlickrSearchResponse.swift */; };
 		7D9909892318E20E00ACEF05 /* VirtualTouristAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9909882318E20E00ACEF05 /* VirtualTouristAPI.swift */; };
 		F6B2D6BBA7696113E12A791B /* Pods_Virtual_Tourist.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE132BB47DCACF88755E77A5 /* Pods_Virtual_Tourist.framework */; };
@@ -38,6 +39,7 @@
 		7D479B6E2316C1DB00DB9E0A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7D479B772316C3BA00DB9E0A /* GlobalVariables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalVariables.swift; sourceTree = "<group>"; };
 		7D479B7A2316C48C00DB9E0A /* todo.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = todo.rtf; sourceTree = "<group>"; };
+		7D5AE6102328A5050083E060 /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
 		7D7DD9EB23196B2B00342BE1 /* FlickrSearchResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrSearchResponse.swift; sourceTree = "<group>"; };
 		7D9909882318E20E00ACEF05 /* VirtualTouristAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualTouristAPI.swift; sourceTree = "<group>"; };
 		D66E2AD04F9FE8C47F1AF628 /* Pods-Virtual Tourist.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Virtual Tourist.release.xcconfig"; path = "Target Support Files/Pods-Virtual Tourist/Pods-Virtual Tourist.release.xcconfig"; sourceTree = "<group>"; };
@@ -102,6 +104,7 @@
 		7D479B562316C1DA00DB9E0A = {
 			isa = PBXGroup;
 			children = (
+				7D5AE6102328A5050083E060 /* Readme.md */,
 				7D479B612316C1DA00DB9E0A /* Virtual Tourist */,
 				7D479B602316C1DA00DB9E0A /* Products */,
 				19D2C651DB31917D6E13F5A7 /* Pods */,
@@ -228,6 +231,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D5AE6112328A5050083E060 /* Readme.md in Resources */,
 				7D479B7B2316C48C00DB9E0A /* todo.rtf in Resources */,
 				7D479B6D2316C1DB00DB9E0A /* LaunchScreen.storyboard in Resources */,
 				7D479B6A2316C1DB00DB9E0A /* Assets.xcassets in Resources */,

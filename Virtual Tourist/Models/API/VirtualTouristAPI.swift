@@ -10,12 +10,12 @@ import Foundation
 import SVProgressHUD
 
 class VirtualTouristAPI {
-    static let apiKey = "babdff117ad276dcc8c9003ddc9bfb6c"
+    static let apiKey = "1b737ae1c787b9a6ab4688ab981b862f"
     
     static let baseURLForSearch = "https://www.flickr.com/services/rest/?method=flickr.photos.search"
     
     enum EndPoint {
-        case searchImagesForLocation(Double, Double)
+        case searchImagesForLocation(Double, Double, Int)
         case imageURL(Int, String, String, String)
         
         var url: URL {
@@ -24,8 +24,8 @@ class VirtualTouristAPI {
         
         var stringValue: String {
             switch self {
-            case .searchImagesForLocation(let lat, let lon):
-                return "\(baseURLForSearch)&api_key=\(apiKey)&lat=\(lat)&lon=\(lon)&format=json&nojsoncallback=1&per_page=20"
+            case .searchImagesForLocation(let lat, let lon, let page):
+                return "\(baseURLForSearch)&api_key=\(apiKey)&lat=\(lat)&lon=\(lon)&format=json&nojsoncallback=1&per_page=20&page=\(page)"
                 
             case .imageURL(let farmId, let serverId, let id, let secret):
                 return "https://farm\(farmId).staticflickr.com/\(serverId)/\(id)_\(secret).jpg"
@@ -35,8 +35,8 @@ class VirtualTouristAPI {
     }
     
     
-    static func requestImagesFromLocation(lat: Double, lon: Double, completionHandler: @escaping (FlickrSearchResponse?, Error?) -> Void) {
-        let searchEndPoint = VirtualTouristAPI.EndPoint.searchImagesForLocation(lat, lon).url
+    static func requestImagesFromLocation(lat: Double, lon: Double, page: Int, completionHandler: @escaping (FlickrSearchResponse?, Error?) -> Void) {
+        let searchEndPoint = VirtualTouristAPI.EndPoint.searchImagesForLocation(lat, lon, page).url
         print("url for seach: \(searchEndPoint)")
         SVProgressHUD.show()
         
@@ -59,6 +59,10 @@ class VirtualTouristAPI {
             }
         }
         task.resume()
+    }
+    
+    static func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
+        URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
     }
     
 }

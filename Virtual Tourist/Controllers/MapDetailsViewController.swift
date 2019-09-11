@@ -23,16 +23,14 @@ class MapDetailsViewController: UIViewController {
     
     var selectedImages: [IndexPath]!
     
+    var imagesToDownload = 0
+    var imagesDonwloaded = 1
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupFetchedResultsController()
-        
         setUpMap()
-
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        
         selectedImages = [IndexPath]()
         
     }
@@ -70,7 +68,7 @@ class MapDetailsViewController: UIViewController {
                     try? delete(photo: photo)
                 }
                 
-                VirtualTouristAPI.requestImagesFromLocation(lat: pinLocation.latitude, lon: pinLocation.longitude, completionHandler: handleImagesFromLocation(response:error:))
+                VirtualTouristAPI.requestImagesFromLocation(lat: pinLocation.latitude, lon: pinLocation.longitude, page: Int(pinLocation.page + 1), completionHandler: handleImagesFromLocation(response:error:))
                 
 
                 selectedImages.removeAll()
@@ -121,6 +119,25 @@ class MapDetailsViewController: UIViewController {
         
     }
     
+    fileprivate func fetchPinesWith(latitude: Double, longitude: Double) throws -> [Pin] {
+        let request = NSFetchRequest<Pin>(entityName: "Pin")
+        request.predicate = NSPredicate(format: "latitude == %lf AND longitude == %lf", latitude, longitude)
+        
+        return  try self.dataController.viewContext.fetch(request)
+    }
+    
+    fileprivate func updatePageAt(pin: Pin) {
+        let currentValue = pin.page
+        
+        pin.page = currentValue + 1
+        
+        do {
+            try dataController.viewContext.save()
+        } catch {
+            print("error at updating \(error.localizedDescription)")
+        }
+    }
+    
     fileprivate func fetchPhotos() throws -> [Photos] {
         let request = NSFetchRequest<Photos>(entityName: "Photos")
         request.predicate = NSPredicate(format: "pinLocations == %@", pinLocation)
@@ -155,31 +172,71 @@ class MapDetailsViewController: UIViewController {
         }catch {
             fatalError("couldn save image")
         }
-        
-        
-        
+    }
+    
+    func addImage(data: Data) {
+        let photo = Photos(context: dataController.viewContext)
+        photo.creationDate = Date()
+        photo.pinLocations = pinLocation
+        photo.image = data
+        do {
+            try dataController.viewContext.save()
+        }catch {
+            fatalError("couldn save image")
+        }
     }
     
     //MARK: - API
     func handleImagesFromLocation(response: FlickrSearchResponse?, error: Error?) {
-        DispatchQueue.main.async {
-            guard let response = response else {
-                return
+
+        guard let response = response else {
+            return
+        }
+        self.imagesToDownload = response.photos.photo.count
+        self.imagesDonwloaded = 0
+        for photo in response.photos.photo {
+            if !photo.server.isEmpty && !photo.id.isEmpty && !photo.secret.isEmpty {
+                let url  = VirtualTouristAPI.EndPoint.imageURL(photo.farm, photo.server, photo.id, photo.secret).url
+                VirtualTouristAPI.getData(from: url, completion: self.handleImageDownloaded(data:response:error:))
+                
             }
-            for photo in response.photos.photo {
-                if !photo.server.isEmpty && !photo.id.isEmpty && !photo.secret.isEmpty {
-                    let url  = VirtualTouristAPI.EndPoint.imageURL(photo.farm, photo.server, photo.id, photo.secret).stringValue
-                    self.addImage(url: url)
-                }
-            }
-            //retreive al images
-            self.fetchedResultsController = nil
-            self.setupFetchedResultsController()
-            
-            //reload images on collection view
-            self.collectionView.reloadData()
         }
 
+    }
+    
+    func handleImageDownloaded(isLast: Bool, data: Data?, response: URLResponse?, error: Error?) {
+        DispatchQueue.main.async {
+            guard let data = data else {
+                return
+            }
+            self.addImage(data: data)
+            
+            
+        }
+    }
+    
+    func handleImageDownloaded(data: Data?, response: URLResponse?, error: Error?) {
+        DispatchQueue.main.async {
+            guard let data = data else {
+                return
+            }
+            self.addImage(data: data)
+            
+            
+            self.imagesDonwloaded += 1
+            if self.imagesDonwloaded == self.imagesToDownload {
+                //retreive al images
+                self.fetchedResultsController = nil
+                self.setupFetchedResultsController()
+                
+                //reload images on collection view
+                self.collectionView.reloadData()
+                
+                self.updatePageAt(pin: self.pinLocation)
+                
+                
+            }
+        }
     }
 
 }
@@ -237,16 +294,18 @@ extension MapDetailsViewController: UICollectionViewDelegate {
 
 extension MapDetailsViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print ("objects \(fetchedResultsController.sections?[0].numberOfObjects ?? 0)")
+        
         return fetchedResultsController.sections?[0].numberOfObjects ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let aImage = fetchedResultsController.object(at: indexPath)
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cellForImages", for: indexPath) as! ImagesCollectionViewCell
-        if let imageName = aImage.url {
- 
-            cell.flickrImage.sd_setImage(with: URL(string: imageName), placeholderImage: UIImage(named: "no-image"))
+
+        if let data = aImage.image {
+            
+            cell.flickrImage.image = UIImage(data: data)
+            
             cell.flickrImage.alpha = 1.0
             
         }

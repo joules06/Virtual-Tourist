@@ -89,7 +89,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="119" height="121"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="2oj-zz-n3i">
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="no-image" translatesAutoresizingMaskIntoConstraints="NO" id="2oj-zz-n3i">
                                                     <rect key="frame" x="2" y="3" width="115" height="115"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="115" id="LL2-Kb-XBn"/>
@@ -107,6 +107,10 @@
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
+                                <connections>
+                                    <outlet property="dataSource" destination="FbK-Um-h30" id="MZi-NO-ly5"/>
+                                    <outlet property="delegate" destination="FbK-Um-h30" id="6fT-9Z-Nm7"/>
+                                </connections>
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="izv-pa-mr2">
                                 <rect key="frame" x="0.0" y="822" width="414" height="40"/>
@@ -163,4 +167,7 @@
             <point key="canvasLocation" x="132" y="115"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="no-image" width="920" height="960"/>
+    </resources>
 </document>
